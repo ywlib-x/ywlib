@@ -1,6 +1,6 @@
 #pragma once
 
-#define _ywm_ns_start___________________________________________________(Name_) namesapce Name_ {
+#define _ywm_ns_start___________________________________________________(Name_) namespace Name_ {
 #define _ywm_ns_close___________________________________________________(Name_) }
 
 _ywm_ns_start___________________________________________________(yw)
@@ -45,10 +45,9 @@ using fatt = type::switch_<sizeof poid == 4, fat4, fat8>;
 
 _ywm_ns_close___________________________________________________(yw)
 
-#ifndef _ywm_ywlib_source
+#ifdef _ywlib_
 #include "./inc/ywlib-0.hpp"
-#include "./inc/ywlib-1.hpp"
-#endif
-
+//#include "./inc/ywlib-1.hpp"
 #undef _ywm_ns_start___________________________________________________
 #undef _ywm_ns_close___________________________________________________
+#endif
