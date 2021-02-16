@@ -1,0 +1,54 @@
+#pragma once
+
+#define _ywm_ns_start___________________________________________________(Name_) namesapce Name_ {
+#define _ywm_ns_close___________________________________________________(Name_) }
+
+_ywm_ns_start___________________________________________________(yw)
+_ywm_ns_start___________________________________________________(_zyx)
+template<bool B_, class T_> struct ywtype_breaker {};
+template<class T_> struct ywtype_breaker<true, T_> { using type = T_; };
+template<bool B_, class T1_, class T2_> struct ywtype_switch_ { using type = T1_; };
+template<class T1_, class T2_> struct ywtype_switch_<false, T1_, T2_> { using type = T2_; };
+_ywm_ns_close___________________________________________________(_zyx)
+_ywm_ns_start___________________________________________________(type)
+
+template<bool B_, class T_ = void> using breaker = typename _zyx::ywtype_breaker<B_, T_>::type;
+template<bool B_, class T1_, class T2_> using switch_ = typename _zyx::ywtype_switch_<B_, T1_, T2_>::type;
+
+_ywm_ns_close___________________________________________________(type)
+
+using cat0 = char;
+using cat1 = char8_t;
+using cat2 = char16_t;
+using cat4 = char32_t;
+
+using int1 = signed int8_t;
+using int2 = signed short;
+using int4 = signed int;
+using int8 = signed long long;
+
+using nat1 = unsigned char;
+using nat2 = unsigned short;
+using nat4 = unsigned int;
+using nat8 = unsigned long long;
+
+using fat4 = float;
+using fat8 = double;
+
+using poid = void*;
+using cpoid = const void*;
+
+using catt = cat1;
+using intt = type::switch_<sizeof poid == 4, int4, int8>;
+using natt = type::switch_<sizeof poid == 4, nat4, nat8>;
+using fatt = type::switch_<sizeof poid == 4, fat4, fat8>;
+
+_ywm_ns_close___________________________________________________(yw)
+
+#ifndef _ywm_ywlib_source
+#include "./inc/ywlib-0.hpp"
+#include "./inc/ywlib-1.hpp"
+#endif
+
+#undef _ywm_ns_start___________________________________________________
+#undef _ywm_ns_close___________________________________________________
