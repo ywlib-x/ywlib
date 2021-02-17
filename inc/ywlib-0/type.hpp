@@ -2,6 +2,11 @@
 #include "../../ywlib"
 
 _ywm_ns_start___________________________________________________(yw)
+_ywm_ns_start___________________________________________________(util)
+
+inline constexpr bool constevaluating(void)noexcept { return __builtin_is_constant_evaluated(); }
+
+_ywm_ns_close___________________________________________________(util)
 _ywm_ns_start___________________________________________________(type)
 
 using nullptr_t = decltype(nullptr);
@@ -77,7 +82,6 @@ template<class T_> using add_ptr = T_*;
 
 template<class T_> struct _declval_protector { static const bool stop = false; static add_ref_rv<T_> delegate()noexcept; };
 template<class T_> add_ref_rv<T_> declval(void)noexcept { static_assert(_declval_protector<T_>::stop); return declval_protector<T_>::delegate(); }
-inline constexpr bool now_constevaluating(void)noexcept { return __builtin_is_constant_evaluated(); }
 
 template<class T_> inline constexpr natt rank = 0;
 template<class T_> inline constexpr natt rank<T_[]> = rank<T_> + 1;
