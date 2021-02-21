@@ -1,6 +1,6 @@
 #pragma once
 #include "../../ywlib"
-#include "./type.hpp"
+#include "./type.yw"
 
 _ywm_ns_start___________________________________________________(yw)
 

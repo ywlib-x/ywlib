@@ -1,0 +1,175 @@
+#pragma once
+#include "../../ywlib"
+#include "./type.yw"
+#include "./concept.yw"
+#include "./array.yw"
+
+_ywm_ns_start___________________________________________________(yw)
+_ywm_ns_start___________________________________________________(math)
+
+#pragma region typename
+template<_quant... Ts_> using ret_type_fat   = type::switch_<type::is_included<fat4, Ts_...> && !type::is_included<fat8, Ts_...>, fat4, fat8>;
+template<_quant... Ts_> using ret_type_quant = decltype((Ts_ * ...));
+#pragma endregion
+
+#pragma region constants
+inline constexpr fat8 c_e      = 2.71828182845904523536;
+inline constexpr fat8 c_pi     = 3.14159265358979323846;
+inline constexpr fat8 c_ln2    = 0.693147180559945309417;
+inline constexpr fat8 c_ln3    = 1.098612288668109691395;
+inline constexpr fat8 c_ln10   = 2.302585092994045684018;
+#pragma endregion
+
+#pragma region abs
+template<_quant T_> inline constexpr T_ abs(T_ X_)noexcept {
+  if constexpr (type::is_nat<T_>) return X_;
+  else return X_ < T_() ? -X_ : X_;
+}
+#pragma endregion
+
+#pragma region round
+_ywm_ns_start___________________________________________________(_zyx)
+template<_quant T_, bool tRound_fTrunc_> inline constexpr T_ ywmath_trunc_round(T_ X_)noexcept {
+  if constexpr (!type::is_fat<T_>) return X_;
+  using int_type = type::make_int<sizeof T_>;
+  constexpr const T_ np = type::is_same<T_, fat4> ? 16777216.0f : 4503599627370496.0, nm = -np;
+  if constexpr (tRound_fTrunc_) X_ = (X_ > 0 ? (X_ + T_(0.5)) : (X_ - T_(0.5)));
+  return nm < X_ && X_ < np ? static_cast<T_>(static_cast<int_type>(X_)) : X_;
+}
+template<_quant T_, bool tCeil_fFloor> inline constexpr T_ ywmath__ceil_floor(T_ X_)noexcept {
+  if constexpr (!type::is_fat<T_>) return X_;
+  T_ t = trunc(X_);
+  return tCeil_fFloor ? (t < X_ ? t + 1 : t) : (t > X_ ? t - 1 : t);
+}
+_ywm_ns_close___________________________________________________(_zyx)
+template<_quant T_> inline constexpr T_ round(T_ X_)noexcept { return _zyx::ywmath_trunc_round<T_,  true>(X_); }
+template<_quant T_> inline constexpr T_ trunc(T_ X_)noexcept { return _zyx::ywmath_trunc_round<T_, false>(X_); }
+template<_quant T_> inline constexpr T_  ceil(T_ X_)noexcept { return _zyx::ywmath__ceil_floor<T_,  true>(X_); }
+template<_quant T_> inline constexpr T_ floor(T_ X_)noexcept { return _zyx::ywmath__ceil_floor<T_, false>(X_); }
+#pragma endregion
+
+#pragma region factorial
+_ywm_ns_start___________________________________________________(_zyx)
+inline constexpr Array<nat8, 21> ywmath_factorial_array = {
+  1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880, 3628800, 39916800, 479001600, 6227020800, 87178291200,
+  130767436800, 20922789888000, 355687428096000, 6402373705728000, 121645100408832000, 2432902008176640000
+};
+inline constexpr Array<fat8, 21> ywmath_factorial_inv_array = { 1./ywmath_factorial_array[0],
+  1./ywmath_factorial_array[1],  1./ywmath_factorial_array[2],  1./ywmath_factorial_array[3],  1./ywmath_factorial_array[4],
+  1./ywmath_factorial_array[5],  1./ywmath_factorial_array[6],  1./ywmath_factorial_array[7],  1./ywmath_factorial_array[8],
+  1./ywmath_factorial_array[9],  1./ywmath_factorial_array[10], 1./ywmath_factorial_array[11], 1./ywmath_factorial_array[12],
+  1./ywmath_factorial_array[13], 1./ywmath_factorial_array[14], 1./ywmath_factorial_array[15], 1./ywmath_factorial_array[16],
+  1./ywmath_factorial_array[17], 1./ywmath_factorial_array[18], 1./ywmath_factorial_array[19], 1./ywmath_factorial_array[20],
+};
+_ywm_ns_close___________________________________________________(_zyx)
+inline constexpr nat8 factorial(natt N_)noexcept {
+  nat8 ret = 1;
+  while (N_) {
+    if (N_ < 21) { ret *= _zyx::ywmath_factorial_array[N_]; break; }
+    else { ret *= _zyx::ywmath_factorial_array[20]; N_ -= 20; }
+  }
+  return ret;
+}
+inline constexpr fat8 factorial_inv(natt N_)noexcept {
+  fat8 ret = 1.;
+  while (N_) {
+    if (N_ < 21) { ret *= _zyx::ywmath_factorial_inv_array[N_]; break; }
+    else { ret *= _zyx::ywmath_factorial_inv_array[20]; N_ -= 20; }
+  }
+  return ret;
+}
+#pragma endregion
+
+#pragma region exp
+_ywm_ns_start___________________________________________________(_zyx)
+template<_quant T_> inline constexpr T_ ywmath_pown(T_ a, natt b)noexcept {
+  T_ c(1);
+  while (b) {
+    if (b & 1) c *= a;
+    b >>= 1; a *= a;
+  }
+  return c;
+}
+template<_quant T_> inline constexpr T_ ywmath_powi(T_ a, intt b)noexcept {
+  if (b < 0) return ywmath_pown(1/a, -b);
+  return ywmath_pown(a, static_cast<natt>(b));
+}
+_ywm_ns_close___________________________________________________(_zyx)
+template<_quant T_> inline constexpr ret_type_fat<T_> exp(T_ X_)noexcept {
+  intt a = static_cast<intt>(round(X_));
+  fat8 b = static_cast<fat8>(X_ - a);
+  if (b == 0.) return _zyx::ywmath_powi(math::c_e, a);
+  fat8 c(b), d(1. + c), e(1.);
+  for (natt i = 2; abs(d - e) > type::props<ret_type_fat<T_>>::epsilon; ++i) {
+    d = (e = d) + (c *= b) * factorial_inv(i);
+  }
+  b = _zyx::ywmath_powi(math::c_e, a) * d;
+  return type::is_same<ret_type_fat<T_>, fat4> ? static_cast<fat4>(b) : b;
+}
+#pragma endregion
+
+#pragma region ilogb
+template<_quant T_> inline constexpr intt ilogb(T_ X_)noexcept {
+  auto fn = [](nat8 Y_) -> natt {
+    nat8 a = 32, b = 16, c = Y_ >> a;
+    while (b) {
+      if (c) { a += b; }
+      else   { a -= b; }
+      b >>= 1;
+      c = Y_ >> a;
+    }
+    return a;
+  };
+  if constexpr (!type::is_fat<T_>) return fn(static_cast<nat8>(abs(X_)));
+  bool a = (X_ = abs(X_)) < 1 ? true : false;
+  if (a) X_ = 1 / X_;
+  constexpr fat8 b = 1 / (static_cast<fat8>(type::props<nat8>::max) + 1.);
+  for (natt i = 0; ; ++i) {
+    if (X_ > type::props<nat8>::max) X_ *= b;
+    else return i * 64 + fn(static_cast<nat8>(X_));
+  }
+}
+#pragma endregion
+
+#pragma region log
+_ywm_ns_start___________________________________________________(_zyx)
+template<_quant T_> inline constexpr fat8 ywmath_ln(T_ X_)noexcept {
+  if (X_ <= 0 || T_(2) <= X_) return type::props<fat8>::nan;
+  fat8 b = 1 - X_, c(b), d(c), e(0);
+  for (natt i = 2; abs(d - e) > type::props<fat8>::epsilon; ++i) {
+    d = (e = d) + (c *= b) / i;
+  }
+  return -d;
+}
+template<natt Var_, _quant T_> inline constexpr ret_type_fat<T_> ywmath_log(T_ X_)noexcept {
+  if (X_ == 0) return    -type::props<ret_type_fat<T_>>::inf;
+  else if (X_ < 0) return type::props<ret_type_fat<T_>>::nan;
+  int8 a = ilogb(X_);
+  fat8 b = _zyx::ywmath_ln(X_ / _zyx::ywmath_powi(2., a));
+  if constexpr      (Var_ == 0)  b += a * c_ln2;
+  else if constexpr (Var_ == 2)  b = b / c_ln2 + a;
+  else if constexpr (Var_ == 3)  b = (b + a * c_ln2) / c_ln3;
+  else if constexpr (Var_ == 10) b = (b + a * c_ln2) / c_ln10;
+  else                           b = (b + a * c_ln2) / ywmath_log<0>(Var_);
+  return type::is_same<ret_type_fat<T_>, fat4> ? static_cast<fat4>(b) : b;
+}
+_ywm_ns_close___________________________________________________(_zyx)
+template<_quant T_> inline constexpr ret_type_fat<T_> ln(T_ X_)noexcept { return _zyx::ywmath_log<0>(X_); }
+template<_quant T_> inline constexpr ret_type_fat<T_> log2(T_ X_)noexcept { return _zyx::ywmath_log<2>(X_); }
+template<_quant T_> inline constexpr ret_type_fat<T_> log10(T_ X_)noexcept { return _zyx::ywmath_log<10>(X_); }
+template<_quant T_> inline constexpr ret_type_fat<T_> log(T_ X_)noexcept { return ln(X_); }
+template<_quant T1_, _quant T2_> inline constexpr ret_type_fat<T1_, T2_> log(T1_ X_, T2_ Base_)noexcept {
+  if (Base_ <= T2_()) return type::props<ret_type_fat<T1_, T2_>>::nan;
+  return log(X_) / log(Base_);
+}
+#pragma endregion
+
+#pragma region pow
+template<_quant T1_, _quant T2_> inline constexpr ret_type_quant<T2_, T2_> pow(T1_ X_, T2_ Y_)noexcept {
+  if constexpr (!type::is_fat<T2_>) return type::is_int<T2_> ? _zyx::ywmath_powi(X_, Y_) : _zyx::ywmath_pown(X_, Y_);
+  return exp(Y_ * log(X_));
+}
+#pragma endregion
+
+_ywm_ns_close___________________________________________________(math)
+_ywm_ns_close___________________________________________________(yw)

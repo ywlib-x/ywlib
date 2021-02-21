@@ -1,19 +1,15 @@
 #pragma once
 #include "../../ywlib"
 
+#undef _instm0
+#undef _instm1
+#undef _instm2
+#undef _instm3
+
 _ywm_ns_start___________________________________________________(yw)
-_ywm_ns_start___________________________________________________(util)
-
-inline constexpr bool constevaluating(void)noexcept { return __builtin_is_constant_evaluated(); }
-
-_ywm_ns_close___________________________________________________(util)
-_ywm_ns_start___________________________________________________(type)
-
-using nullptr_t = decltype(nullptr);
-template<class... Ts_> using void_t = void;
-
-_ywm_ns_close___________________________________________________(type)
 _ywm_ns_start___________________________________________________(_zyx)
+#pragma region _ZYX
+template<class... Ts_> using ywtype_void_t = void;
 template<class T_> struct ywtype_remove_const { using type = T_; };
 template<class T_> struct ywtype_remove_const<const T_> { using type = T_; };
 template<class T_> struct ywtype_remove_volatile { using type = T_; };
@@ -34,35 +30,48 @@ template<class T_> struct ywtype_remove_extent { using type = T_; };
 template<class T_> struct ywtype_remove_extent<T_[]> { using type = T_; };
 template<class T_, natt N_> struct ywtype_remove_extent<T_[N_]> { using type = T_; };
 template<class T_> struct ywtype_remove_extent_all { using type = T_; };
-template<class T_> struct ywtype_remove_extent<T_[]> { using type = typename ywtype_remove_extent_all<T_>::type; };
-template<class T_, natt N_> struct ywtype_remove_extent<T_[N_]> { using type = typename ywtype_remove_extent_all<T_>::type; };
+template<class T_> struct ywtype_remove_extent_all<T_[]> { using type = typename ywtype_remove_extent_all<T_>::type; };
+template<class T_, natt N_> struct ywtype_remove_extent_all<T_[N_]> { using type = typename ywtype_remove_extent_all<T_>::type; };
 template<class T_, class Void_ = void> struct ywtype_add_ref { using type_lv = T_; using type_rv = T_; };
-template<class T_> struct ywtype_add_ref<T_, type::void_t<T_&>> { using type_lv = T_&; using type_rv = T_&&; };
+template<class T_> struct ywtype_add_ref<T_, ywtype_void_t<T_&>> { using type_lv = T_&; using type_rv = T_&&; };
 template<class T_, class Void_ = void> struct ywtype_add_ptr { using type = T_; };
-template<class T_> struct ywtype_add_ptr<T_, type::void_t<typename ywtype_remove_ref<T_>::type*>> { using type = typename ywtype_remove_ref<T_>::type*; };
-#define _instm_0(M_, Call_, B_)\
-M_(Call_, , , , B_) M_(Call_, const, , , B_) M_(Call_, volatile, , , B_) M_(Call_, const volatile, , , B_)\
-M_(Call_, , &, , B_) M_(Call_, const, &, , B_) M_(Call_, volatile, &, , B_) M_(Call_, const volatile, &, , B_)\
-M_(Call_, , &&, , B_) M_(Call_, const, &&, , B_) M_(Call_, volatile, &&, , B_) M_(Call_, const volatile, &&, , B_)\
-M_(Call_, , , noexcept, B_) M_(Call_, const, , noexcept, B_) M_(Call_, volatile, , noexcept, B_) M_(Call_, const volatile, , noexcept, B_)\
-M_(Call_, , &, noexcept, B_) M_(Call_, const, &, noexcept, B_) M_(Call_, volatile, &, noexcept, B_) M_(Call_, const volatile, &, noexcept, B_)\
-M_(Call_, , &&, noexcept, B_) M_(Call_, const, &&, noexcept, B_) M_(Call_, volatile, &&, noexcept, B_) M_(Call_, const volatile, &&, noexcept, B_)
+template<class T_> struct ywtype_add_ptr<T_, ywtype_void_t<typename ywtype_remove_ref<T_>::type*>> { using type = typename ywtype_remove_ref<T_>::type*; };
+#define _instm0(M_, Call_)\
+M_(Call_, , , ) M_(Call_, const, , ) M_(Call_, volatile, , ) M_(Call_, const volatile, , )\
+M_(Call_, , &, ) M_(Call_, const, &, ) M_(Call_, volatile, &, ) M_(Call_, const volatile, &, )\
+M_(Call_, , &&, ) M_(Call_, const, &&, ) M_(Call_, volatile, &&, ) M_(Call_, const volatile, &&, )\
+M_(Call_, , , noexcept) M_(Call_, const, , noexcept) M_(Call_, volatile, , noexcept) M_(Call_, const volatile, , noexcept)\
+M_(Call_, , &, noexcept) M_(Call_, const, &, noexcept) M_(Call_, volatile, &, noexcept) M_(Call_, const volatile, &, noexcept)\
+M_(Call_, , &&, noexcept) M_(Call_, const, &&, noexcept) M_(Call_, volatile, &&, noexcept) M_(Call_, const volatile, &&, noexcept)
 template<class T_, class Void_ = void> inline constexpr bool ywtype_is_memptr_function = false;
-#define _instm_1(Call_, Cv_, Ref_, Ne_, B_)\
-template<class Ret_, class Cls_, class... Args_> inline constexpr bool ywtype_is_memptr_function<Ret_ (Call_ Cls_::*)(Args_...)Cv_ Ref_ Ne_, type::breaker<B_>> = true;
-#define _instm_2(Call_, Cv_, Ref_, Ne_, B_)\
-template<class Ret_, class Cls_, class... Args_> inline constexpr bool ywtype_is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)Cv_ Ref_ Ne_, type::breaker<B_>> = true;
-_instm_0(_instm_2, , true);
-_instm_0(_instm_1, __cdecl, true);
-_instm_0(_instm_1, __vectorcall, true);
-_instm_0(_instm_1, __stdcall, sizeof(poid) == 4);
-_instm_0(_instm_1, __fastcall, sizeof(poid) == 4);
-_instm_0(_instm_1, __thiscall, sizeof(poid) == 4);
-#undef _instm_0;
-#undef _instm_1;
-#undef _instm_2;
+#define _instm1(Call_, Cv_, Ref_, Ne_)\
+template<class Ret_, class Cls_, class... Args_> inline constexpr bool ywtype_is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)Cv_ Ref_ Ne_> = true;
+#define _instm2(Call_, Cv_, Ref_, Ne_)\
+template<class Ret_, class Cls_, class... Args_> inline constexpr bool ywtype_is_memptr_function<Ret_ (Call_ Cls_::*)(Args_...)Cv_ Ref_ Ne_> = true;
+#define _instm3(Call_, Cv_, Ref_, Ne_)\
+template<class Ret_, class Cls_, class... Args_> inline constexpr bool ywtype_is_memptr_function<Ret_ (Call_ Cls_::*)(Args_...)Cv_ Ref_ Ne_, type::breaker<sizeof(Cls_*) == 4>> = true;
+_instm0(_instm1, );
+_instm0(_instm2, __cdecl);
+_instm0(_instm2, __vectorcall);
+_instm0(_instm3, __stdcall);
+//_instm0(_instm3, __fastcall);
+//_instm0(_instm3, __thiscall);
+#undef _instm0
+#undef _instm1
+#undef _instm2
+#undef _instm3
+template<natt N_> struct ywtype_make {};
+template<> struct ywtype_make<1> { using type_c = cat1; using type_i = int1; using type_n = nat1; };
+template<> struct ywtype_make<2> { using type_c = cat2; using type_i = int2; using type_n = nat2; };
+template<> struct ywtype_make<4> { using type_c = cat4; using type_i = int4; using type_n = nat4; using type_f = fat4; };
+template<> struct ywtype_make<8> { using type_i = int8; using type_n = nat8; using type_f = fat8; };
+template<class T_> struct ywtype_declval { static const bool stop = false; typename ywtype_add_ref<T_>::type_rv delegate()noexcept; };
+#pragma endregion
 _ywm_ns_close___________________________________________________(_zyx)
 _ywm_ns_start___________________________________________________(type)
+
+using nullptr_t = decltype(nullptr);
+template<class... Ts_> using void_t = void;
 
 template<class T_> using remove_const = typename _zyx::ywtype_remove_const<T_>::type;
 template<class T_> using remove_volatile = typename _zyx::ywtype_remove_volatile<T_>::type;
@@ -76,12 +85,9 @@ template<class T_> using remove_extent_all = typename _zyx::ywtype_remove_extent
 template<class T_> using add_const = const T_;
 template<class T_> using add_volatile = volatile T_;
 template<class T_> using add_cv = const volatile T_;
-template<class T_> using add_ref_lv = typename _zyx::ywtype_add_ref::type_lv;
-template<class T_> using add_ref_rv = typename _zyx::ywtype_add_ref::type_rv;
+template<class T_> using add_ref_lv = typename _zyx::ywtype_add_ref<T_>::type_lv;
+template<class T_> using add_ref_rv = typename _zyx::ywtype_add_ref<T_>::type_rv;
 template<class T_> using add_ptr = T_*;
-
-template<class T_> struct _declval_protector { static const bool stop = false; static add_ref_rv<T_> delegate()noexcept; };
-template<class T_> add_ref_rv<T_> declval(void)noexcept { static_assert(_declval_protector<T_>::stop); return declval_protector<T_>::delegate(); }
 
 template<class T_> inline constexpr natt rank = 0;
 template<class T_> inline constexpr natt rank<T_[]> = rank<T_> + 1;
@@ -178,5 +184,18 @@ template<class T_> inline constexpr bool is_nothrow_destructible = __is_nothrow_
 template<class T_> inline constexpr bool is_trivially_destructible = __is_trivially_destructible(T_);
 template<class T_> inline constexpr bool has_virtual_destructor = __has_virtual_destructor(T_);
 
+template<natt N_> using make_cat = typename _zyx::ywtype_make<N_>::type_c;
+template<natt N_> using make_int = typename _zyx::ywtype_make<N_>::type_i;
+template<natt N_> using make_nat = typename _zyx::ywtype_make<N_>::type_n;
+template<natt N_> using make_fat = typename _zyx::ywtype_make<N_>::type_f;
+
 _ywm_ns_close___________________________________________________(type)
+_ywm_ns_start___________________________________________________(util)
+
+inline constexpr bool constevaluating(void)noexcept { return __builtin_is_constant_evaluated(); }
+
+
+template<class T_> type::add_ref_rv<T_> declval(void)noexcept { static_assert(_zyx::ywtype_declval<T_>::stop); return _zyx::ywtype_declval<T_>::delegate(); }
+
+_ywm_ns_close___________________________________________________(util)
 _ywm_ns_close___________________________________________________(yw)

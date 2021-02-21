@@ -64,5 +64,6 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
   <ItemGroup>
+    <ClCompile Include="cmath.cpp" />
   </ItemGroup>
 </Project>

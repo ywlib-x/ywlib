@@ -5,6 +5,26 @@ VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ywlib-0", "ywlib-0\ywlib-0.vcxproj", "{A3060CA4-E554-4A9F-8763-00F9C8FDD9BD}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "inc", "inc", "{F58CF3BB-841A-4056-9F1E-56C58D0D8808}"
+	ProjectSection(SolutionItems) = preProject
+		inc\ywlib-0.hpp = inc\ywlib-0.hpp
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ywlib-0", "ywlib-0", "{990CDEAB-F01A-41A3-B514-FFB8628E664D}"
+	ProjectSection(SolutionItems) = preProject
+		inc\ywlib-0\array.yw = inc\ywlib-0\array.yw
+		inc\ywlib-0\concept.yw = inc\ywlib-0\concept.yw
+		inc\ywlib-0\math.yw = inc\ywlib-0\math.yw
+		inc\ywlib-0\type.yw = inc\ywlib-0\type.yw
+		inc\ywlib-0\type_limits.yw = inc\ywlib-0\type_limits.yw
+		inc\ywlib-0\utility.yw = inc\ywlib-0\utility.yw
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Headers", "Headers", "{F609D32B-0E7B-4282-8ECB-3E3F804CFC58}"
+	ProjectSection(SolutionItems) = preProject
+		ywlib = ywlib
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		dbg|x64 = dbg|x64
@@ -24,6 +44,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F58CF3BB-841A-4056-9F1E-56C58D0D8808} = {F609D32B-0E7B-4282-8ECB-3E3F804CFC58}
+		{990CDEAB-F01A-41A3-B514-FFB8628E664D} = {F58CF3BB-841A-4056-9F1E-56C58D0D8808}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B4FF1192-5731-4FF4-AC0C-A3ABAEA1B559}

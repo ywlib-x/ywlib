@@ -1,0 +1,56 @@
+#pragma once
+#include "../../ywlib"
+#include "./type.yw"
+#include "./concept.yw"
+
+_ywm_ns_start___________________________________________________(yw)
+_ywm_ns_start___________________________________________________(_zyx)
+
+_ywm_ns_close___________________________________________________(_zyx)
+_ywm_ns_start___________________________________________________(type)
+
+template<_quant T_> struct props final {
+  ~props() = delete;
+  props(void) = delete;
+  static inline constexpr T_ max     = 0x7FFFFFFFFFFFFFFF >> (64 - 8 * sizeof(T_));
+  static inline constexpr T_ min     = 0x8000000000000000 >> (64 - 8 * sizeof(T_));
+  static inline constexpr T_ epsilon = 0;
+  static inline constexpr T_ inf = max;
+  static inline constexpr T_ nan = 0;
+};
+template<_nat T_> struct props<T_> final {
+  ~props() = delete;
+  props(void) = delete;
+  static inline constexpr T_ max     = 0xFFFFFFFFFFFFFFFF >> (64 - 8 * sizeof(T_));
+  static inline constexpr T_ min     = 0;
+  static inline constexpr T_ epsilon = 0;
+  static inline constexpr T_ inf = max;
+  static inline constexpr T_ nan = 0;
+};
+template<_fat T_> struct props<T_> final {
+  ~props() = delete;
+  props(void) = delete;
+  static inline constexpr T_ max     = is_same<T_, fat4> ? T_(3.402823466e+38f) : T_(1.7976931348623158e+308);
+  static inline constexpr T_ min     = is_same<T_, fat4> ? T_(1.175494351e-38f) : T_(2.2250738585072014e-308);
+  static inline constexpr T_ epsilon = is_same<T_, fat4> ? T_(1.192092896e-07f) : T_(2.2204460492503131e-016);
+  static inline constexpr T_ inf = static_cast<T_>(1.e+300 * 1.e+300);
+  static inline constexpr T_ nan = inf * T_();
+};
+
+_ywm_ns_close___________________________________________________(type)
+_ywm_ns_start___________________________________________________(util)
+
+
+
+template<class T_> [[nodiscard]] constexpr type::remove_ref<T_>&& move(T_&& Arg_)noexcept {
+  return static_cast<type::remove_ref<T_>&&>(Arg_);
+}
+
+
+template<class T_> inline constexpr T_* copy(T_* Dst_, const T_* Src_, natt Count_)
+  noexcept(type::is_scalar<T_> || noexcept(*Dst_ = *Src_)) {
+  for (natt i = 0; i < Count_; ++i) Dst_[i] = Src_[i]; return Dst_ + Count_;
+}
+
+_ywm_ns_close___________________________________________________(util)
+_ywm_ns_close___________________________________________________(yw)

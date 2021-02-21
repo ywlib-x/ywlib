@@ -1,0 +1,89 @@
+#pragma once
+#include "../../ywlib"
+#include "./type.yw"
+#include "./concept.yw"
+#include "./utility.yw"
+
+_ywm_ns_start___________________________________________________(yw)
+
+template<class T_, natt N_ = 0> class Array {
+public:
+  T_ v[N_];
+  [[nodiscard]] constexpr natt len(void)const noexcept { return N_; }
+  [[nodiscard]] constexpr T_* operator()(void)noexcept { return v; }
+  [[nodiscard]] constexpr T_* operator()(natt I_)noexcept { return v + I_; }
+  [[nodiscard]] constexpr T_& operator[](natt I_)noexcept { return v[I_]; }
+  [[nodiscard]] constexpr const T_* operator()(void)const noexcept { return v; }
+  [[nodiscard]] constexpr const T_* operator()(natt I_)const noexcept { return v + I_; }
+  [[nodiscard]] constexpr const T_& operator[](natt I_)const noexcept { return v[I_]; }
+  
+  class Iterator {
+    T_* p;
+  public:
+    constexpr Iterator(T_* Pointer_)noexcept : p(Pointer_) {}
+    [[nodiscard]] constexpr T_& operator*(void)noexcept { return *p; }
+    [[nodiscard]] constexpr bool operator!=(const Iterator& Iter_)const noexcept { return !(p == Iter_.p); }
+    constexpr Iterator& operator++(void)noexcept { ++p; return *this; }
+    constexpr Iterator& operator--(void)noexcept { --p; return *this; }
+  };
+};
+
+template<class T_> class Array<T_, 0> {
+  T_* ptr_; natt len_; natt bl_; T_* bp_;
+  static inline constexpr bool can_ne_construct = noexcept(new T_);
+  static inline constexpr bool can_ne_copy = noexcept(util::copy(util::declval<T_*>(), util::declval<const T_*>(), natt()));
+public:
+  virtual ~Array()noexcept { delete[] bp_; ptr_ = bp_ = nullptr; len_ = bl_ = 0; }
+  Array(void)noexcept : ptr_(nullptr), len_(0), bl_(0), bp_(nullptr) {}
+  Array(natt Capacity_, natt Length_)noexcept(can_ne_construct) : ptr_(nullptr), len_(Length_), bl_(Capacity_), bp_(bl_ ? new T_[bl_] : nullptr) { ptr_ = bp_; }
+  Array(natt Capacity_, const T_* Source_, natt Length_)noexcept(can_ne_construct && can_ne_copy) : Array(Capacity_, Length_) { if (len_) util::copy(ptr_, Source_, len_); }
+  Array(natt Capacity_, const Array& A_)noexcept(can_ne_construct && can_ne_copy) : Array(Capacity_, A_.ptr_, A_.len_) {}
+  template<natt N_> Array(natt Capacity, const Array<T_, N_>& A_)noexcept(can_ne_construct && can_ne_copy) : Array(Capacity, A_(), A_.len()) {}
+  Array(natt Length_)noexcept(can_ne_construct) : Array(Length_, Length_) {}
+  Array(const T_* Source_, natt Length_)noexcept(can_ne_construct && can_ne_copy) : Array(Length_, Source_, Length_) {}
+  Array(const Array& A_)noexcept(can_ne_construct && can_ne_copy) : Array(A_.len_, A_) {}
+  Array(Array&& A_)noexcept : ptr_(A_.ptr_), len_(A_.len_), bl_(A_.bl_), bp_(A_.bp_) { A_.ptr_ = A_.bp_ = nullptr; A_.len_ = A_.bl_ = 0; }
+  template<natt N_> Array(const Array<T_, N_>& A_)noexcept(can_ne_construct && can_ne_copy) : Array(A_.len(), A_(), A_.len()) {}
+  
+  Array& operator=(Array&& A_)noexcept { delete[] bp_; ptr_ = A_.ptr_; len_ = A_.len_; bl_ = A_.bl_; bp_ = A_.bp_; A_.ptr_ = A_.bp_ = nullptr; A_.len_ = A_.bl_ = 0; return *this; }
+  Array& operator=(const Array& A_)noexcept(can_ne_construct && can_ne_copy) {
+    if (bl_ < A_.len_) return *this = Array(A_.ptr_, A_.len_);
+    util::copy(ptr_ = bp_, A_.ptr_, len_ = A_.len_);
+    return *this;
+  }
+  template<natt N_> Array& operator=(const Array<T_, N_>& A_)noexcept(can_ne_construct && can_ne_copy) {
+    if (bl_ < N_) return *this = Array(A_(), A_.len());
+    util::copy(ptr_ = bp_, A_(), len_ = A_.len());
+    return *this;
+  }
+
+  [[nodiscard]] natt len(void)const noexcept { return len_; }
+  [[nodiscard]] natt cap_all(void)const noexcept { return bl_; }
+  [[nodiscard]] natt cap_top(void)const noexcept { return static_cast<natt>(ptr_ - bp_); }
+  [[nodiscard]] natt cap_end(void)const noexcept { return static_cast<natt>(bl_ - (len_ + cap_top)); }
+  [[nodiscard]] natt cap (void)const noexcept { return bl_ + (bp_ - ptr_); }
+
+  [[nodiscard]] T_* operator()(void)noexcept { return ptr_; }
+  [[nodiscard]] T_* operator()(natt I_)noexcept { return ptr_ + I_; }
+  [[nodiscard]] T_& operator[](natt I_)noexcept { return ptr_[I_]; }
+  [[nodiscard]] const T_* operator()(void)const noexcept { return ptr_; }
+  [[nodiscard]] const T_* operator()(natt I_)const noexcept { return ptr_ + I_; }
+  [[nodiscard]] const T_& operator[](natt I_)const noexcept { return ptr_[I_]; }
+
+  class Iterator {
+    T_* p;
+  public:
+    Iterator(T_* Pointer)noexcept : p(Pointer) {}
+    [[nodiscard]] T_& operator*(void)noexcept { return *p; }
+    [[nodiscard]] bool operator!=(const Iterator& Iter_)const noexcept { return !(p == Iter_.p); }
+    constexpr Iterator& operator++(void)noexcept { ++p; return *this; }
+    constexpr Iterator& operator--(void)noexcept { --p; return *this; }
+  };
+};
+
+template<class T_, natt N_> inline constexpr typename Array<T_, N_>::Iterator begin(Array<T_, N_>& A_)noexcept { return Array<T_, N_>::Iterator(A_()); }
+template<class T_, natt N_> inline constexpr typename Array<T_, N_>::Iterator   end(Array<T_, N_>& A_)noexcept { return Array<T_, N_>::Iterator(A_(A_.len())); }
+template<class T_, natt N_> inline constexpr typename Array<T_, N_>::Iterator begin(const Array<T_, N_>& A_)noexcept { return Array<T_, N_>::Iterator(A_()); }
+template<class T_, natt N_> inline constexpr typename Array<T_, N_>::Iterator   end(const Array<T_, N_>& A_)noexcept { return Array<T_, N_>::Iterator(A_(A_.len())); }
+
+_ywm_ns_close___________________________________________________(yw)

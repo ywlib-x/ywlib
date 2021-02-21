@@ -1,0 +1,45 @@
+#pragma once
+#include "../../ywlib"
+#include "./concept.yw"
+
+_ywm_ns_start___________________________________________________(yw)
+_ywm_ns_start___________________________________________________(_zyx)
+template<_fat T_> inline constexpr T_ ywtype_get_signaling_nan(void)noexcept { return T_(); }
+_ywm_ns_close___________________________________________________(_zyx)
+_ywm_ns_start___________________________________________________(type)
+enum class float_denorm_style { denorm_indeterminate = -1, denorm_absent = 0, denorm_present = 1 };
+enum class float_round_style { round_indeterminate = -1, round_toward_zero = 0, round_to_nearest = 1, round_toward_infinity = 2, round_toward_neg_infinity = 3 };
+template<_fat T_> class limits {
+public:
+  static constexpr float_denorm_style has_denorm  = float_denorm_style::denorm_present;
+  static constexpr float_round_style round_style  = float_round_style::round_to_nearest;
+  static constexpr bool has_infinity              = true;
+  static constexpr bool has_quiet_NaN             = true;
+  static constexpr bool has_signaling_NaN         = true;
+  static constexpr bool is_bounded                = true;
+  static constexpr bool is_iec559                 = true;
+  static constexpr bool is_signed                 = true;
+  static constexpr bool is_specialized            = true;
+  static constexpr intt radix                     = 2;
+  static constexpr intt bits_exponent = is_same<T_, fat4> ? 8  : 11;
+  static constexpr intt bits_fraction = is_same<T_, fat4> ? 23 : 52;
+  static constexpr intt exponent_offset = is_same<T_, fat4> ? -127 : -1023;
+  static constexpr intt digits                    = is_same<T_, fat4> ? 24 : 53;
+  static constexpr intt digits10                  = is_same<T_, fat4> ? 6 : 15;
+  static constexpr intt max_digits10              = is_same<T_, fat4> ? 9 : 17;
+  static constexpr intt max_exponent              = is_same<T_, fat4> ? 128 : 1024;
+  static constexpr intt max_exponent10            = is_same<T_, fat4> ? 38 : 308;
+  static constexpr intt min_exponent              = is_same<T_, fat4> ? -125 : -1021;
+  static constexpr intt min_exponent10            = is_same<T_, fat4> ? -37 : -307;
+  static constexpr T_ min                         = is_same<T_, fat4> ? 1.175494351e-38f : 2.2250738585072014e-308;
+  static constexpr T_ max                         = is_same<T_, fat4> ? 3.402823466e+38f : 1.7976931348623158e+308;
+  static constexpr T_ lowest                      = -max;
+  static constexpr T_ epsilon                     = is_same<T_, fat4> ? 1.192092896e-07F : 2.2204460492503131e-016;
+  static constexpr T_ round_error                 = 0.5;
+  static constexpr T_ denorm_min                  = is_same<T_, fat4> ? 1.401298464e-45F : 4.9406564584124654e-324;
+  static constexpr T_ infinity                    = static_cast<T_>(1.0e+300 * 1.0e+300);
+  static constexpr T_ quiet_NaN                   = static_cast<T_>(infinity * T_());
+  static constexpr T_ signaling_NaN               = _zyx::ywtype_get_signaling_nan<T_>();
+};
+_ywm_ns_close___________________________________________________(type)
+_ywm_ns_close___________________________________________________(yw)
