@@ -118,7 +118,7 @@ template<_quant T_> inline constexpr intt ilogb(T_ X_)noexcept {
       b >>= 1;
       c = Y_ >> a;
     }
-    return a;
+    return c ? a : a - 1;
   };
   if constexpr (!type::is_fat<T_>) return fn(static_cast<nat8>(abs(X_)));
   bool a = (X_ = abs(X_)) < 1 ? true : false;
