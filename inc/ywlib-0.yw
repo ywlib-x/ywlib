@@ -1,7 +1,0 @@
-#pragma once
-#include "./ywlib-0/type.yw"
-#include "./ywlib-0/concept.yw"
-#include "./ywlib-0/utility.yw"
-#include "./ywlib-0/array.yw"
-#include "./ywlib-0/math.yw"
-

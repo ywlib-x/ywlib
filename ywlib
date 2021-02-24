@@ -4,18 +4,6 @@
 #define _ywm_ns_close___________________________________________________(Name_) }
 
 _ywm_ns_start___________________________________________________(yw)
-_ywm_ns_start___________________________________________________(_zyx)
-template<bool B_, class T_> struct ywtype_breaker {};
-template<class T_> struct ywtype_breaker<true, T_> { using type = T_; };
-template<bool B_, class T1_, class T2_> struct ywtype_switch_ { using type = T1_; };
-template<class T1_, class T2_> struct ywtype_switch_<false, T1_, T2_> { using type = T2_; };
-_ywm_ns_close___________________________________________________(_zyx)
-_ywm_ns_start___________________________________________________(type)
-
-template<bool B_, class T_ = void> using breaker = typename _zyx::ywtype_breaker<B_, T_>::type;
-template<bool B_, class T1_, class T2_> using switch_ = typename _zyx::ywtype_switch_<B_, T1_, T2_>::type;
-
-_ywm_ns_close___________________________________________________(type)
 
 using cat0 = char;
 using cat1 = char8_t;
@@ -38,12 +26,9 @@ using fat8 = double;
 using poid = void*;
 using cpoid = const void*;
 
-using catt = cat1;
-using intt = type::switch_<sizeof poid == 4, int4, int8>;
-using natt = type::switch_<sizeof poid == 4, nat4, nat8>;
-using fatt = type::switch_<sizeof poid == 4, fat4, fat8>;
-
 enum class byte : nat1 {};
+
+using catt = cat1;
 
 _ywm_ns_start___________________________________________________(_std)
 using wc_t = wchar_t;
@@ -52,9 +37,8 @@ using ul_t = unsigned long;
 using ld_t = long double;
 _ywm_ns_close___________________________________________________(_std)
 _ywm_ns_close___________________________________________________(yw)
-#ifdef _ywm_ywlib
-//#include "./inc/ywlib-0.hpp"
-//#include "./inc/ywlib-1.hpp"
+#ifdef _ywlib_
+#include "./inc/ywlib-0.hpp"
 #undef _ywm_ns_start___________________________________________________
 #undef _ywm_ns_close___________________________________________________
 #endif

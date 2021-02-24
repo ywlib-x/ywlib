@@ -3,13 +3,28 @@
 _ywm_ns_start___________________________________________________(yw)
 
 #pragma region Primal
+_ywm_ns_start___________________________________________________(_zyx)
+template<bool B_, typename T_> struct ywtype_breaker { using type = T_; };
+template<typename T_> struct ywtype_breaker<false, T_> {};
+template<bool B_, typename T1_, typename T2_> struct ywtype_switch_ { using type = T1_; };
+template<typename T1_, typename T2_> struct ywtype_switch_<false, T1_, T2_> { using type = T2_; };
+_ywm_ns_close___________________________________________________(_zyx)
 _ywm_ns_start___________________________________________________(type)
+using nullptr_t = decltype(nullptr);// equals to decltype(nullptr), std::nullptr_t.
+template<typename... Ts_> using void_t = void;// equals to void if all Ts_... are valid; Otherwise gets invalid.
+template<bool B_, typename T_ = void> using breaker = typename _zyx::ywtype_breaker<B_, T_>::type;// breaks the type-infering if B_ is false.
+template<bool B_, typename T1_, typename T2_> using switch_ = typename _zyx::ywtype_switch_<B_, T1_, T2_>::type;// switches the type to T1_ if B_ is true; Othewise T2_.
+_ywm_ns_close___________________________________________________(type)
+using intt = type::switch_<sizeof(type::nullptr_t) == 4, int4, int8>;// is int-type whose size equals to that of a pointer.
+using natt = type::switch_<sizeof(type::nullptr_t) == 4, nat4, nat8>;// is nat-type whose size equals to that of a pointer.
+using fatt = type::switch_<sizeof(type::nullptr_t) == 4, fat4, fat8>;// is fat-type whose size equals to that of a pointer.
 
-// equals to decltype(nullptr), std::nullptr_t.
-using nullptr_t = decltype(nullptr);
-
-// equals to void if all Ts_... are valid; Otherwise this get invalid.
-template<typename... Ts_> using void_t = void;
+template<bool... Bs_> inline constexpr bool conjunction = (Bs_ && ...);// checks if all arguments in Bs_ are true.
+template<bool... Bs_> inline constexpr bool disjunction = (Bs_ || ...);// checks if at least an argument in Bs_ is true.
+_ywm_ns_start___________________________________________________(type)
+template<typename T1_ , typename T2_> inline constexpr bool is_same = false;// checks if T1_ equals to T2_.
+template<typename T_> inline constexpr bool is_same<T_, T_> = true;
+template<typename T_, typename... Ts_> inline constexpr bool is_included = disjunction<is_same<T_, Ts_>...>;// checks if T_ is included in Ts_....
 _ywm_ns_close___________________________________________________(type)
 #pragma endregion
 
@@ -43,124 +58,70 @@ template<typename T_> struct ywtype_remove_extent_all<T_[]> { using type = typen
 template<typename T_, natt N_> struct ywtype_remove_extent_all<T_[N_]> { using type = typename ywtype_remove_extent_all<T_>::type; };
 _ywm_ns_close___________________________________________________(_zyx)
 _ywm_ns_start___________________________________________________(type)
-
-// adds const qualifier to the type.
-template<typename T_> using add_const = const T_;
-
-// adds volatile qualifier to the type.
-template<typename T_> using add_volatile = volatile T_;
-
-// adds const & volatile qualifier to the type.
-template<typename T_> using add_cv = const volatile T_;
-
-// adds left-value reference to the type.
-template<typename T_> using add_ref_lv = typename _zyx::ywtype_add_ref<T_>::type_lv;
-
-// adds right-value reference to the type.
-template<typename T_> using add_ref_rv = typename _zyx::ywtype_add_ref<T_>::type_rv;
-
-// adds pointer to the type.
-template<typename T_> using add_ptr = T_*;
-
-// removes const qualifier from the type.
-template<typename T_> using remove_const = typename _zyx::ywtype_remove_const<T_>::type;
-
-// removes volatile qualifier from the type.
-template<typename T_> using remove_volatile = typename _zyx::ywtype_remove_volatile<T_>::type;
-
-// removes const & volatile qualifier from the type.
-template<typename T_> using remove_cv = typename _zyx::ywtype_remove_cv<T_>::type;
-
-// removes reference from the type.
-template<typename T_> using remove_ref = typename _zyx::ywtype_remove_ref<T_>::type;
-
-// removes reference and const & volatile qualifier form the type.
-template<typename T_> using remove_cvref = remove_cv<remove_ref<T_>>;
-
-// removes pointer form the type.
-template<typename T_> using remove_ptr = typename _zyx::ywtype_remove_ptr<T_>::type;
-
-// removes extent from the type.
-template<typename T_> using remove_extent = typename _zyx::ywtype_remove_extent<T_>::type;
-
-// removes all extent from the type.
-template<typename T_> using remove_extent_all = typename _zyx::ywtype_remove_extent_all<T_>::type;
+template<typename T_> using add_const = const T_;// adds const qualifier to the type.
+template<typename T_> using add_volatile = volatile T_;// adds volatile qualifier to the type.
+template<typename T_> using add_cv = const volatile T_;// adds const & volatile qualifier to the type.
+template<typename T_> using add_ref_lv = typename _zyx::ywtype_add_ref<T_>::type_lv;// adds left-value reference to the type.
+template<typename T_> using add_ref_rv = typename _zyx::ywtype_add_ref<T_>::type_rv;// adds right-value reference to the type.
+template<typename T_> using add_ptr = T_*;// adds pointer to the type.
+template<typename T_> using remove_const = typename _zyx::ywtype_remove_const<T_>::type;// removes const qualifier from the type.
+template<typename T_> using remove_volatile = typename _zyx::ywtype_remove_volatile<T_>::type;// removes volatile qualifier from the type.
+template<typename T_> using remove_cv = typename _zyx::ywtype_remove_cv<T_>::type;// removes const & volatile qualifier from the type.
+template<typename T_> using remove_ref = typename _zyx::ywtype_remove_ref<T_>::type;// removes reference from the type.
+template<typename T_> using remove_cvref = remove_cv<remove_ref<T_>>;// removes reference and const & volatile qualifier form the type.
+template<typename T_> using remove_ptr = typename _zyx::ywtype_remove_ptr<T_>::type;// removes pointer form the type.
+template<typename T_> using remove_extent = typename _zyx::ywtype_remove_extent<T_>::type;// removes extent from the type.
+template<typename T_> using remove_extent_all = typename _zyx::ywtype_remove_extent_all<T_>::type;// removes all extent from the type.
 _ywm_ns_close___________________________________________________(type)
 #pragma endregion
 
-#pragma region Size_of_Array
+#pragma region Type_Check_1_Fundamental
 _ywm_ns_start___________________________________________________(type)
-
-// has the value equals to rank of the Type.
-template<typename T_> inline constexpr natt rank = 0;
-template<typename T_> inline constexpr natt rank<T_[]> = rank<T_> + 1;
-template<typename T_, natt N_> inline constexpr natt rank<T_[N_]> = rank<T_> + 1;
-
-// has the value euqals to array-size of specified rank.
-template<typename T_, natt I_> inline constexpr natt extent = 0;
-template<typename T_, natt N_> inline constexpr natt extent<T_[N_], 0> = N_;
-template<typename T_, natt I_> inline constexpr natt extent<T_[], I_> = extent<T_, I_ - 1>;
-template<typename T_, natt I_, natt N_> inline constexpr natt extent<T_[N_], I_> = extent<T_, I_ - 1>;
+template<typename T_> inline constexpr bool is_void = is_same<remove_cv<T_>, void>;// checks if the type is void.
+template<typename T_> inline constexpr bool is_nullptr = is_same<remove_cv<T_>, nullptr_t>;// checks if the type is nullptr_t.
+template<typename T_> inline constexpr bool is_bool = is_same<remove_cv<T_>, bool>;// checks if the type is bool.
+template<typename T_> inline constexpr bool is_cat = is_included<remove_cv<T_>, cat0, cat1, cat2, cat4>;// checks if the type is cat (character type).
+template<typename T_> inline constexpr bool is_int = is_included<remove_cv<T_>, int1, int2, int4, int8>;// checks if the type is int (integral value type).
+template<typename T_> inline constexpr bool is_nat = is_included<remove_cv<T_>, nat1, nat2, nat4, nat8>;// checks if the type is nat (natural value type).
+template<typename T_> inline constexpr bool is_fat = is_included<remove_cv<T_>, fat4, fat8>;// checks if the type is fat (floating-point value type).
+template<typename T_> inline constexpr bool is_count = is_int<T_> || is_nat<T_>;// checks if the type is for counting.
+template<typename T_> inline constexpr bool is_quant = is_count<T_> || is_fat<T_>;// checks if the type is for quantifying
+template<typename T_> inline constexpr bool is_integral = is_bool<T_> || is_cat<T_> || is_count<T_>;// checks if the type has integral value.
+template<typename T_> inline constexpr bool is_signed = is_integral<T_> ? (static_cast<remove_cv<T_>>(-1) < static_cast<remove_cv<T_>>(0)) : is_fat<T_>;// checks if the type has signed value.
+template<typename T_> inline constexpr bool is_unsigned = is_integral<T_> ? !is_signed<T_> : false;// checks if the type has unsigned value.
+template<typename T_> inline constexpr bool is_fundamental = is_integral<T_> || is_fat<T_> || is_void<T_> || is_nullptr<T_>;// checks if the type is fundamental.
 _ywm_ns_close___________________________________________________(type)
 #pragma endregion
 
-#pragma region Type_Check_0
+
+#pragma region Check_CV/Ref/Ptr/Array
 _ywm_ns_start___________________________________________________(type)
-
-// checks if all arguments are true.
-template<bool... Bs_> inline constexpr bool conjunction = (Bs_ && ...);
-
-// checks if at least an argument is true.
-template<bool... Bs_> inline constexpr bool disjunction = (Bs_ || ...);
-
-// checks if the two types are equal.
-template<typename T1_ , typename T2_> inline constexpr bool is_same = false;
-template<typename T_> inline constexpr bool is_same<T_, T_> = true;
-
-// checks if the type is included in listed types.
-template<typename T_, typename... Ts_> inline constexpr bool is_included = disjunction<is_same<T_, Ts_>...>;
-_ywm_ns_close___________________________________________________(type)
-#pragma endregion
-
-#pragma region Type_Check_1
-_ywm_ns_start___________________________________________________(type)
-
-// checks if the type has const qualifier.
-template<typename T_> inline constexpr bool is_const = false;
+template<typename T_> inline constexpr bool is_const = false;// checks if the type has const qualifier.
 template<typename T_> inline constexpr bool is_const<const T_> = true;
-
-// checks if the type has volatile qualifier.
-template<typename T_> inline constexpr bool is_volatile = false;
+template<typename T_> inline constexpr bool is_volatile = false;// checks if the type has volatile qualifier.
 template<typename T_> inline constexpr bool is_volatile<volatile T_> = true;
-
-// checks if the type is left-value reference.
-template<typename T_> inline constexpr bool is_ref_lv = false;
+template<typename T_> inline constexpr bool is_ref_lv = false;// checks if the type is left-value reference.
 template<typename T_> inline constexpr bool is_ref_lv<T_&> = true;
-
-// checks if the type is right-value reference.
-template<typename T_> inline constexpr bool is_ref_rv = false;
+template<typename T_> inline constexpr bool is_ref_rv = false;// checks if the type is right-value reference.
 template<typename T_> inline constexpr bool is_ref_rv<T_&&> = true;
-
-// checks if the type is reference.
-template<typename T_> inline constexpr bool is_ref = is_ref_lv<T_> || is_ref_rv<T_>;
-
-// checks if the type is pointer.
-template<typename T_> inline constexpr bool is_ptr = false;
+template<typename T_> inline constexpr bool is_ref = is_ref_lv<T_> || is_ref_rv<T_>;// checks if the type is reference.
+template<typename T_> inline constexpr bool is_ptr = false;// checks if the type is pointer.
 template<typename T_> inline constexpr bool is_ptr<T_*> = true;
 template<typename T_> inline constexpr bool is_ptr<T_* const> = true;
 template<typename T_> inline constexpr bool is_ptr<T_* volatile> = true;
 template<typename T_> inline constexpr bool is_ptr<T_* const volatile> = true;
-
-// checks if the type is bounded array.
-template<typename T_> inline constexpr bool is_array_bounded = false;
+template<typename T_> inline constexpr bool is_array_bounded = false;// checks if the type is bounded array.
 template<typename T_, natt N_> inline constexpr bool is_array_bounded<T_[N_]> = true;
-
-// checks if the type is unbounded array.
-template<typename T_> inline constexpr bool is_array_unbounded = false;
+template<typename T_> inline constexpr bool is_array_unbounded = false;// checks if the type is unbounded array.
 template<typename T_> inline constexpr bool is_array_unbounded<T_[]> = true;
-
-// checks if the type is array.
-template<typename T_> inline constexpr bool is_array = is_array_bounded<T_> || is_array_unbounded<T_>;
+template<typename T_> inline constexpr bool is_array = is_array_bounded<T_> || is_array_unbounded<T_>;// checks if the type is array.
+template<typename T_> inline constexpr natt rank = 0;// has the value equals to rank of the Type.
+template<typename T_> inline constexpr natt rank<T_[]> = rank<T_> + 1;
+template<typename T_, natt N_> inline constexpr natt rank<T_[N_]> = rank<T_> + 1;
+template<typename T_, natt I_> inline constexpr natt extent = 0;// has the value euqals to array-size of specified rank.
+template<typename T_, natt N_> inline constexpr natt extent<T_[N_], 0> = N_;
+template<typename T_, natt I_> inline constexpr natt extent<T_[], I_> = extent<T_, I_ - 1>;
+template<typename T_, natt I_, natt N_> inline constexpr natt extent<T_[N_], I_> = extent<T_, I_ - 1>;
 _ywm_ns_close___________________________________________________(type)
 #pragma endregion
 
@@ -193,41 +154,6 @@ _instm0(_instm1, ); _instm0(_instm2, __cdecl); _instm0(_instm2, __vectorcall); _
 _ywm_ns_close___________________________________________________(_zyx)
 _ywm_ns_start___________________________________________________(type)
 
-// checks if the type is void.
-template<typename T_> inline constexpr bool is_void = is_same<remove_cv<T_>, void>;
-
-// checks if the type is nullptr_t.
-template<typename T_> inline constexpr bool is_nullptr = is_same<remove_cv<T_>, nullptr_t>;
-
-// checks if the type is bool.
-template<typename T_> inline constexpr bool is_bool = is_same<remove_cv<T_>, bool>;
-
-// checks if the type is cat (character type).
-template<typename T_> inline constexpr bool is_cat = is_included<T_, cat0, cat1, cat2, cat4>;
-
-// checks if the type is int (integral value type).
-template<typename T_> inline constexpr bool is_int = is_included<T_, int1, int2, int4, int8>;
-
-// checks if the type is nat (natural value type).
-template<typename T_> inline constexpr bool is_nat = is_included<T_, nat1, nat2, nat4, nat8>;
-
-// checks if the type is fat (floating-point value type).
-template<typename T_> inline constexpr bool is_fat = is_included<T_, fat4, fat8>;
-
-// checks if the type is for counting.
-template<typename T_> inline constexpr bool is_count = is_int<T_> || is_nat<T_>;
-
-// checks if the type is for quantifying
-template<typename T_> inline constexpr bool is_quant = is_count<T_> || is_fat<T_>;
-
-// checks if the type has integral value.
-template<typename T_> inline constexpr bool is_integral = is_bool<T_> || is_cat<T_> || is_count<T_>;
-
-// checks if the type has signed value.
-template<typename T_> inline constexpr bool is_signed = is_integral<T_> ? (static_cast<remove_cv<T_>>(-1) < static_cast<remove_cv<T_>>(0)) : is_fat<T_>;
-
-// checks if the type has unsigned value.
-template<typename T_> inline constexpr bool is_unsigned = is_integral<T_> ? !is_signed<T_> : false;
 
 // checks if the type is function.
 template<typename T_> inline constexpr bool is_function = !is_const<const T_> && !is_ref<T_>;
@@ -248,8 +174,6 @@ template<typename T_> inline constexpr bool is_memptr = is_memptr_function<T_> |
 // checks if the type is scalar.
 template<typename T_> inline constexpr bool is_scalar = is_integral<T_> || is_fat<T_> || is_enum<T_> || is_ptr<T_> || is_memptr<T_> || is_nullptr<T_>;
 
-// checks if the type is fundamental.
-template<typename T_> inline constexpr bool is_fundamental = is_integral<T_> || is_fat<T_> || is_void<T_> || is_nullptr<T_>;
 
 // checks if the type is compound.
 template<typename T_> inline constexpr bool is_compound = !is_fundamental<T_>;
@@ -328,7 +252,7 @@ struct ywtype_invoker_pmd_pointer {
   template<typename Decayed_, typename T1_> static constexpr auto _Call(Decayed_ Pmd, T1_&& A1_)noexcept(noexcept((*static_cast<T1_&&>(A1_)).*Pmd)) -> decltype((*static_cast<T1_&&>(A1_)).*Pmd) { return (*static_cast<T1_&&>(A1_)).*Pmd; }
 };
 template<typename Callable_, typename T1_, typename Removed_cvref_ = type::remove_cvref<Callable_>, bool _Is_pmf = type::is_memptr_function<Removed_cvref_>, bool _Is_pmd = type::is_memptr_object<Removed_cvref_>> struct _Invoker1;
-template<typename Callable_, typename T1_, typename Removed_cvref_> struct _Invoker1<Callable_, T1_, Removed_cvref_, true, false> : type::switch_<type::is_base_of<typename _Is_memfunptr<Removed_cvref_>::_Class_type, remove_reference_t<T1_>>, ywtype_invoker_pmf_object, type::switch_<_Is_specialization_v<_Remove_cvref_t<T1_>, reference_wrapper>, ywtype_invoker_pmf_refwrap, ywtype_invoker_pmf_pointer>> {}; template<typename Callable_, typename T1_, typename Removed_cvref_>
+template<typename Callable_, typename T1_, typename Removed_cvref_> struct _Invoker1<Callable_, T1_, Removed_cvref_, true, false> : type::switch_<type::is_base_of<typename _Is_memfunptr<Removed_cvref_>::_Class_type, type::remove_ref<T1_>>, ywtype_invoker_pmf_object, type::switch_<_Is_specialization_v<_Remove_cvref_t<T1_>, reference_wrapper>, ywtype_invoker_pmf_refwrap, ywtype_invoker_pmf_pointer>> {}; template<typename Callable_, typename T1_, typename Removed_cvref_>
 struct _Invoker1<Callable_, T1_, Removed_cvref_, false, true> : type::switch_<type::is_base_of<typename _Is_member_object_pointer<Removed_cvref_>::_Class_type, remove_reference_t<T1_>>, ywtype_invoker_pmd_object, type::switch_<_Is_specialization_v<_Remove_cvref_t<T1_>, reference_wrapper>, ywtype_invoker_pmd_refwrap, ywtype_invoker_pmd_pointer>> {};
 template<typename Callable_, typename T1_, typename Removed_cvref_> struct _Invoker1<Callable_, T1_, Removed_cvref_, false, false> : ywtype_invoker_functor {};
 
