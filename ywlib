@@ -1,44 +1,38 @@
 #pragma once
+#define ywlib_path
 
-#define _ywm_ns_start___________________________________________________(Name_) namespace Name_ {
-#define _ywm_ns_close___________________________________________________(Name_) }
+namespace yw {
+  using cat0 = char;
+  using cat1 = char8_t;
+  using cat2 = char16_t;
+  using cat4 = char32_t;
 
-_ywm_ns_start___________________________________________________(yw)
+  using int1 = signed char;
+  using int2 = signed short;
+  using int4 = signed int;
+  using int8 = signed long long;
 
-using cat0 = char;
-using cat1 = char8_t;
-using cat2 = char16_t;
-using cat4 = char32_t;
+  using nat1 = unsigned char;
+  using nat2 = unsigned short;
+  using nat4 = unsigned int;
+  using nat8 = unsigned long long;
 
-using int1 = signed char;
-using int2 = signed short;
-using int4 = signed int;
-using int8 = signed long long;
+  using fat4 = float;
+  using fat8 = double;
 
-using nat1 = unsigned char;
-using nat2 = unsigned short;
-using nat4 = unsigned int;
-using nat8 = unsigned long long;
+  using poid = void*;
+  using cpoid = const void*;
 
-using fat4 = float;
-using fat8 = double;
+  using catt = cat1;
 
-using poid = void*;
-using cpoid = const void*;
+  namespace _std {
+    using wc_t = wchar_t;
+    using sl_t = signed long;
+    using ul_t = unsigned long;
+    using ld_t = long double;
+  }
+}
 
-enum class byte : nat1 {};
-
-using catt = cat1;
-
-_ywm_ns_start___________________________________________________(_std)
-using wc_t = wchar_t;
-using sl_t = signed long;
-using ul_t = unsigned long;
-using ld_t = long double;
-_ywm_ns_close___________________________________________________(_std)
-_ywm_ns_close___________________________________________________(yw)
-#ifdef _ywlib_
+#ifndef _ywlib_
 #include "./inc/ywlib-0.hpp"
-#undef _ywm_ns_start___________________________________________________
-#undef _ywm_ns_close___________________________________________________
 #endif
