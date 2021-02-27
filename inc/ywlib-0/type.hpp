@@ -86,6 +86,12 @@ namespace type {
   template<typename T_> inline constexpr bool is_signed = is_integral<T_> ? (static_cast<remove_cv<T_>>(-1) < static_cast<remove_cv<T_>>(0)) : is_fat<T_>;// checks if the type has signed value.
   template<typename T_> inline constexpr bool is_unsigned = is_integral<T_> ? !is_signed<T_> : false;// checks if the type has unsigned value.
   template<typename T_> inline constexpr bool is_fundamental = is_integral<T_> || is_fat<T_> || is_void<T_> || is_nullptr<T_>;// checks if the type is fundamental.
+  template<typename T_> concept _cat = is_cat<T_>;
+  template<typename T_> concept _int = is_int<T_>;
+  template<typename T_> concept _nat = is_nat<T_>;
+  template<typename T_> concept _fat = is_fat<T_>;
+  template<typename T_> concept _count = is_count<T_>;
+  template<typename T_> concept _quant = is_quant<T_>;
 }
 #pragma endregion
 #pragma region CV/Ref/Ptr/Array
@@ -115,6 +121,33 @@ namespace type {
   template<typename T_, natt N_> inline constexpr natt extent<T_[N_], 0> = N_;
   template<typename T_, natt I_> inline constexpr natt extent<T_[], I_> = extent<T_, I_ - 1>;
   template<typename T_, natt I_, natt N_> inline constexpr natt extent<T_[N_], I_> = extent<T_, I_ - 1>;
+#pragma endregion
+#pragma Advance_1
+namespace _zyx {
+  template<typename T_> struct ywtype_declval { static const bool stop = false; type::add_ref_rv<T_> delegate(void)noexcept; };
+}
+namespace type {
+  // obtains any non-evaluable value for noexcept(), decltype(), etc..
+  template<typename T_> type::add_ref_rv<T_> declval(void)noexcept {
+    static_assert(_zyx::ywtype_declval<T_>::stop); return _zyx::ywtype_declval<T_>::delegate();
+  }
+  template<typename T_, typename... Args_> concept _constructible = requires { T_(declval<Args_>()...); };// requires to be available tha constructor T_(Args_...).
+  template<typename T_, typename... Args_> inline constexpr bool is_constructible = false;// checks if T_(Args_...) is callable.
+  template<typename T_, typename... Args_> requires _constructible<T_, Args_...> inline constexpr bool is_constructible<T_, Args_...> = true;  
+  template<typename T_, typename Arg_> concept _assignable = requires (T_ x, Arg_ y) { x = y; };// requires T_ assignable by Arg_.
+  template<typename T_, typename Arg_> inline constexpr bool is_assignable = false;// chekcs if T_ is assignable by Arg_.
+  template<typename T_, typename Arg_> requires _assignable<T_, Arg_> inline constexpr bool is_assignable<T_, Arg_> = true;
+}
+#pragma endregion
+#pragma region assignable
+namespace type {
+}
+#pragma endregion
+#pragma region enum
+namespace type {
+  template<typename T_> inline constexpr bool is_enum = !is_fundamental<T_> && is_constructible<T_, intt> && !is_assignable<T_, intt>;
+  template<typename T_> inline constexpr bool is_enum_scoped = is_enum<T_> && !is_assignable<intt, T_>;
+}
 #pragma endregion
 
 }

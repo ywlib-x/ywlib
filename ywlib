@@ -1,5 +1,5 @@
 #pragma once
-#define ywlib_path
+#define ywlib_path c:/users/yw/ywlib/
 
 namespace yw {
   using cat0 = char;
