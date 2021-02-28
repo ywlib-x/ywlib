@@ -24,6 +24,8 @@ namespace type {
 using intt = type::switch_<sizeof(poid) == 4, int4, int8>;//is int-type whose size equals to that of a pointer.
 using natt = type::switch_<sizeof(poid) == 4, nat4, nat8>;//is nat-type whose size equals to that of a pointer.
 using fatt = type::switch_<sizeof(poid) == 4, fat4, fat8>;//is fat-type whose size equals to that of a pointer.
+//checks if it is being constant-evaluated now.
+inline constexpr bool is_constant_evaluated(void)noexcept { return __builtin_is_constant_evaluated(); }
 #pragma endregion
 #pragma region Add/Remove
 namespace _zyx {
@@ -73,19 +75,20 @@ namespace type {
 #pragma endregion
 #pragma region Fundamental
 namespace type {
-  template<typename T_> inline constexpr bool is_void = is_same<remove_cv<T_>, void>;// checks if the type is void.
-  template<typename T_> inline constexpr bool is_nullptr = is_same<remove_cv<T_>, nullptr_t>;// checks if the type is nullptr_t.
-  template<typename T_> inline constexpr bool is_bool = is_same<remove_cv<T_>, bool>;// checks if the type is bool.
-  template<typename T_> inline constexpr bool is_cat = is_included<remove_cv<T_>, cat0, cat1, cat2, cat4>;// checks if the type is cat (character type).
-  template<typename T_> inline constexpr bool is_int = is_included<remove_cv<T_>, int1, int2, int4, int8>;// checks if the type is int (integral value type).
-  template<typename T_> inline constexpr bool is_nat = is_included<remove_cv<T_>, nat1, nat2, nat4, nat8>;// checks if the type is nat (natural value type).
-  template<typename T_> inline constexpr bool is_fat = is_included<remove_cv<T_>, fat4, fat8>;// checks if the type is fat (floating-point value type).
-  template<typename T_> inline constexpr bool is_count = is_int<T_> || is_nat<T_>;// checks if the type is for counting.
-  template<typename T_> inline constexpr bool is_quant = is_count<T_> || is_fat<T_>;// checks if the type is for quantifying
+  template<typename T_> inline constexpr bool is_void = is_same<remove_cv<T_>, void>;// checks if T_ is void.
+  template<typename T_> inline constexpr bool is_nullptr = is_same<remove_cv<T_>, nullptr_t>;// checks if T_ is nullptr_t.
+  template<typename T_> inline constexpr bool is_bool = is_same<remove_cv<T_>, bool>;// checks if T_ is bool.
+  template<typename T_> inline constexpr bool is_cat = is_included<remove_cv<T_>, cat0, cat1, cat2, cat4>;// checks if T_ is cat (character type).
+  template<typename T_> inline constexpr bool is_int = is_included<remove_cv<T_>, int1, int2, int4, int8>;// checks if T_ is int (integral value type).
+  template<typename T_> inline constexpr bool is_nat = is_included<remove_cv<T_>, nat1, nat2, nat4, nat8>;// checks if T_ is nat (natural value type).
+  template<typename T_> inline constexpr bool is_fat = is_included<remove_cv<T_>, fat4, fat8>;// checks if T_ is fat (floating-point value type).
+  template<typename T_> inline constexpr bool is_count = is_int<T_> || is_nat<T_>;// checks if T_ is for counting.
+  template<typename T_> inline constexpr bool is_quant = is_count<T_> || is_fat<T_>;// checks if T_ is for quantifying
   template<typename T_> inline constexpr bool is_integral = is_bool<T_> || is_cat<T_> || is_count<T_>;// checks if the type has integral value.
   template<typename T_> inline constexpr bool is_signed = is_integral<T_> ? (static_cast<remove_cv<T_>>(-1) < static_cast<remove_cv<T_>>(0)) : is_fat<T_>;// checks if the type has signed value.
   template<typename T_> inline constexpr bool is_unsigned = is_integral<T_> ? !is_signed<T_> : false;// checks if the type has unsigned value.
-  template<typename T_> inline constexpr bool is_fundamental = is_integral<T_> || is_fat<T_> || is_void<T_> || is_nullptr<T_>;// checks if the type is fundamental.
+  template<typename T_> inline constexpr bool is_fundamental = is_integral<T_> || is_fat<T_> || is_void<T_> || is_nullptr<T_>;// checks if T_ is fundamental.
+  template<typename T_> inline constexpr bool is_compound = !is_fundamental<T_>;// checks if T_ is compound.
   template<typename T_> concept _cat = is_cat<T_>;
   template<typename T_> concept _int = is_int<T_>;
   template<typename T_> concept _nat = is_nat<T_>;
@@ -95,34 +98,36 @@ namespace type {
 }
 #pragma endregion
 #pragma region CV/Ref/Ptr/Array
-  template<typename T_> inline constexpr bool is_const = false;// checks if the type has const qualifier.
+namespace type {
+  template<typename T_> inline constexpr bool is_const = false;// checks if T_ has const qualifier.
   template<typename T_> inline constexpr bool is_const<const T_> = true;
-  template<typename T_> inline constexpr bool is_volatile = false;// checks if the type has volatile qualifier.
+  template<typename T_> inline constexpr bool is_volatile = false;// checks if T_ has volatile qualifier.
   template<typename T_> inline constexpr bool is_volatile<volatile T_> = true;
-  template<typename T_> inline constexpr bool is_ref_lv = false;// checks if the type is left-value reference.
+  template<typename T_> inline constexpr bool is_ref_lv = false;// checks if T_ is left-value reference.
   template<typename T_> inline constexpr bool is_ref_lv<T_&> = true;
-  template<typename T_> inline constexpr bool is_ref_rv = false;// checks if the type is right-value reference.
+  template<typename T_> inline constexpr bool is_ref_rv = false;// checks if T_ is right-value reference.
   template<typename T_> inline constexpr bool is_ref_rv<T_&&> = true;
-  template<typename T_> inline constexpr bool is_ref = is_ref_lv<T_> || is_ref_rv<T_>;// checks if the type is reference.
-  template<typename T_> inline constexpr bool is_ptr = false;// checks if the type is pointer.
+  template<typename T_> inline constexpr bool is_ref = is_ref_lv<T_> || is_ref_rv<T_>;// checks if T_ is reference.
+  template<typename T_> inline constexpr bool is_ptr = false;// checks if T_ is pointer.
   template<typename T_> inline constexpr bool is_ptr<T_*> = true;
   template<typename T_> inline constexpr bool is_ptr<T_* const> = true;
   template<typename T_> inline constexpr bool is_ptr<T_* volatile> = true;
   template<typename T_> inline constexpr bool is_ptr<T_* const volatile> = true;
-  template<typename T_> inline constexpr bool is_array_bounded = false;// checks if the type is bounded array.
+  template<typename T_> inline constexpr bool is_array_bounded = false;// checks if T_ is bounded array.
   template<typename T_, natt N_> inline constexpr bool is_array_bounded<T_[N_]> = true;
-  template<typename T_> inline constexpr bool is_array_unbounded = false;// checks if the type is unbounded array.
+  template<typename T_> inline constexpr bool is_array_unbounded = false;// checks if T_ is unbounded array.
   template<typename T_> inline constexpr bool is_array_unbounded<T_[]> = true;
-  template<typename T_> inline constexpr bool is_array = is_array_bounded<T_> || is_array_unbounded<T_>;// checks if the type is array.
-  template<typename T_> inline constexpr natt rank = 0;// has the value equals to rank of the Type.
+  template<typename T_> inline constexpr bool is_array = is_array_bounded<T_> || is_array_unbounded<T_>;// checks if T_ is array.
+  template<typename T_> inline constexpr natt rank = 0;// has the value equals to rank of T_.
   template<typename T_> inline constexpr natt rank<T_[]> = rank<T_> + 1;
   template<typename T_, natt N_> inline constexpr natt rank<T_[N_]> = rank<T_> + 1;
   template<typename T_, natt I_> inline constexpr natt extent = 0;// has the value euqals to array-size of specified rank.
   template<typename T_, natt N_> inline constexpr natt extent<T_[N_], 0> = N_;
   template<typename T_, natt I_> inline constexpr natt extent<T_[], I_> = extent<T_, I_ - 1>;
   template<typename T_, natt I_, natt N_> inline constexpr natt extent<T_[N_], I_> = extent<T_, I_ - 1>;
+}
 #pragma endregion
-#pragma Advance_1
+#pragma region Advance_1
 namespace _zyx {
   template<typename T_> struct ywtype_declval { static const bool stop = false; type::add_ref_rv<T_> delegate(void)noexcept; };
 }
@@ -131,6 +136,10 @@ namespace type {
   template<typename T_> type::add_ref_rv<T_> declval(void)noexcept {
     static_assert(_zyx::ywtype_declval<T_>::stop); return _zyx::ywtype_declval<T_>::delegate();
   }
+  template<typename T_> inline constexpr bool is_function = !is_const<const T_> && !is_ref<T_>;// checks if T_ is function.
+  template<typename T_> inline constexpr bool is_object = !is_function<T_>;// checks if T_ is object.
+  template<typename T_> inline constexpr bool is_union = __is_union(T_);// checks if T_ is union.
+  template<typename T_> inline constexpr bool is_class = __is_class(T_);// checks if T_ is class.
   template<typename T_, typename... Args_> concept _constructible = requires { T_(declval<Args_>()...); };// requires to be available tha constructor T_(Args_...).
   template<typename T_, typename... Args_> inline constexpr bool is_constructible = false;// checks if T_(Args_...) is callable.
   template<typename T_, typename... Args_> requires _constructible<T_, Args_...> inline constexpr bool is_constructible<T_, Args_...> = true;  
@@ -139,94 +148,71 @@ namespace type {
   template<typename T_, typename Arg_> requires _assignable<T_, Arg_> inline constexpr bool is_assignable<T_, Arg_> = true;
 }
 #pragma endregion
-#pragma region assignable
-namespace type {
-}
-#pragma endregion
-#pragma region enum
+#pragma region Scalar
 namespace type {
   template<typename T_> inline constexpr bool is_enum = !is_fundamental<T_> && is_constructible<T_, intt> && !is_assignable<T_, intt>;
   template<typename T_> inline constexpr bool is_enum_scoped = is_enum<T_> && !is_assignable<intt, T_>;
+  template<typename T_> inline constexpr bool is_memptr_function = false;// checks if T_ is member-function-pointer.
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)const> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)volatile> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)const volatile> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)&> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)const &> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)volatile &> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)const volatile &> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)&&> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)const &&> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)volatile &&> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)const volatile &&> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)const noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)volatile noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)const volatile noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)& noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)const & noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)volatile & noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)const volatile & noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)&& noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)const && noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)volatile && noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_...)const volatile && noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)const> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)volatile> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)const volatile> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)&> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)const &> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)volatile &> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)const volatile &> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)&&> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)const &&> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)volatile &&> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)const volatile &&> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)const noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)volatile noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)const volatile noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)& noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)const & noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)volatile & noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)const volatile & noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)&& noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)const && noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)volatile && noexcept> = true;
+  template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)const volatile && noexcept> = true;
+  template<typename T_> inline constexpr bool is_memptr_object = false;// checks if T_ is member-object-pointer.
+  template<typename Ret_, typename Cls_> inline constexpr bool is_memptr_object<Ret_ Cls_::*> = !is_function<Ret_>;
+  template<typename T_> inline constexpr bool is_memptr = is_memptr_function<T_> || is_memptr_object<T_>;// checks if T_ is member pointer.
+  template<typename T_> inline constexpr bool is_scalar = is_integral<T_> || is_fat<T_> || is_enum<T_> || is_ptr<T_> || is_memptr<T_> || is_nullptr<T_>;// checks if T_ is scalar.
 }
 #pragma endregion
-
 }
+
+
+
 /*
 
-#pragma region Type_Check_2
-_ywm_ns_start___________________________________________________(_zyx)
-template<typename T_, typename Void_ = void> inline constexpr bool ywtype_is_memptr_function = false;
-#undef _instm0
-#undef _instm1
-#undef _instm2
-#undef _instm3
-#define _instm0(M_, Call_)\
-M_(Call_, ,   , ) M_(Call_, const,   , ) M_(Call_, volatile,   , ) M_(Call_, const volatile,   , )\
-M_(Call_, ,  &, ) M_(Call_, const,  &, ) M_(Call_, volatile,  &, ) M_(Call_, const volatile,  &, )\
-M_(Call_, , &&, ) M_(Call_, const, &&, ) M_(Call_, volatile, &&, ) M_(Call_, const volatile, &&, )\
-M_(Call_, ,   , noexcept) M_(Call_, const,   , noexcept) M_(Call_, volatile,   , noexcept) M_(Call_, const volatile,   , noexcept)\
-M_(Call_, ,  &, noexcept) M_(Call_, const,  &, noexcept) M_(Call_, volatile,  &, noexcept) M_(Call_, const volatile,  &, noexcept)\
-M_(Call_, , &&, noexcept) M_(Call_, const, &&, noexcept) M_(Call_, volatile, &&, noexcept) M_(Call_, const volatile, &&, noexcept)
-#define _instm1(Call_, Cv_, Ref_, Ne_)\
-template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool ywtype_is_memptr_function<Ret_ (Cls_::*)(Args_..., ...)Cv_ Ref_ Ne_> = true;
-#define _instm2(Call_, Cv_, Ref_, Ne_)\
-template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool ywtype_is_memptr_function<Ret_ (Call_ Cls_::*)(Args_...)Cv_ Ref_ Ne_> = true;
-#define _instm3(Call_, Cv_, Ref_, Ne_)\
-template<typename Ret_, typename Cls_, typename... Args_> inline constexpr bool ywtype_is_memptr_function<Ret_ (Call_ Cls_::*)(Args_...)Cv_ Ref_ Ne_, type::breaker<sizeof(Cls_*) == 4>> = true;
-_instm0(_instm1, ); _instm0(_instm2, __cdecl); _instm0(_instm2, __vectorcall); _instm0(_instm3, __stdcall);
-//_instm0(_instm3, __fastcall); _instm0(_instm3, __thiscall);
-#undef _instm0
-#undef _instm1
-#undef _instm2
-#undef _instm3
-_ywm_ns_close___________________________________________________(_zyx)
-_ywm_ns_start___________________________________________________(type)
-
-
-// checks if the type is function.
-template<typename T_> inline constexpr bool is_function = !is_const<const T_> && !is_ref<T_>;
-
-// checks if the type is object.
-template<typename T_> inline constexpr bool is_object = !is_function<T_>;
-
-// chcecks if the type is member function pointer.
-template<typename T_> inline constexpr bool is_memptr_function = _zyx::ywtype_is_memptr_function<T_>;
-
-// checks if the type is member object pointer.
-template<typename T_> inline constexpr bool is_memptr_object = false;
-template<typename Ret_, typename Cls_> inline constexpr bool is_memptr_object<Ret_ Cls_::*> = !is_function<Ret_>;
-
-// checks if the type is member pointer.
-template<typename T_> inline constexpr bool is_memptr = is_memptr_function<T_> || is_memptr_object<T_>;
-
-// checks if the type is scalar.
-template<typename T_> inline constexpr bool is_scalar = is_integral<T_> || is_fat<T_> || is_enum<T_> || is_ptr<T_> || is_memptr<T_> || is_nullptr<T_>;
-
-
-// checks if the type is compound.
-template<typename T_> inline constexpr bool is_compound = !is_fundamental<T_>;
-
-// checks if the type is enum.
-//template<typename T_> inline constexpr bool is_enum;
-
-// checks if the type is union.
-//template<typename T_> inline constexpr bool is_union;
-
-// checks if the type is class.
-//template<typename T_> inline constexpr bool is_class;
-_ywm_ns_close___________________________________________________(type)
-#pragma endregion
-
-#pragma region declval
-_ywm_ns_start___________________________________________________(_zyx)
-template<typename T_> struct ywtype_declval_agent { static const bool stop = false; typename ywtype_add_ref<T_>::type_rv delegate()noexcept; };
-_ywm_ns_close___________________________________________________(_zyx)
-_ywm_ns_start___________________________________________________(type)
-
-// obtains any non-evaluable value for noexcept(), decltype(), etc..
-template<typename T_> type::add_ref_rv<T_> declval(void)noexcept { static_assert(_zyx::ywtype_declval_agent<T_>::stop); return _zyx::ywtype_declval_agent<T_>::delegate(); }
-_ywm_ns_close___________________________________________________(type)
-#pragma endregion
 
 #pragma region is_convertible
 _ywm_ns_start___________________________________________________(_zyx)
@@ -337,28 +323,28 @@ _ywm_ns_start___________________________________________________(type)
 // checks if From_ is convertible to To_ implicitly.
 template<typename To_, typename From_> inline constexpr bool is_convertible = _zyx::ywtype_is_convertible<To_, From_>;
 
-// checks if the type is trivial.
+// checks if T_ is trivial.
 //template<class T_> inline constexpr bool is_trivial;
 
-// checks if the type is empty class.
+// checks if T_ is empty class.
 //template<class T_> inline constexpr bool is_empty;
 
-// checks if the type is polymorphic class.
+// checks if T_ is polymorphic class.
 //template<class T_> inline constexpr bool is_polymorphic;
 
-// checks if the type is abstract class.
+// checks if T_ is abstract class.
 //template<class T_> inline constexpr bool is_abstract;
 
-// checks if the type is final class.
+// checks if T_ is final class.
 //template<class T_> inline constexpr bool is_final;
 
-// checks if the type is aggregate.
+// checks if T_ is aggregate.
 //template<class T_> inline constexpr bool is_aggregate;
 
-// checks if the type is trivially copyable.
+// checks if T_ is trivially copyable.
 //template<class T_> inline constexpr bool is_trivially_copyable;
 
-// checks if the type has standard layout.
+// checks if T_ has standard layout.
 //template<class T_> inline constexpr bool is_standard_layout;
 
 //template<class T_> inline constexpr bool has_unique_object_representations;

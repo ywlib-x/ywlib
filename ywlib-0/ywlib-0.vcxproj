@@ -1,69 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="dbg|Win32">
-      <Configuration>dbg</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="rls|Win32">
-      <Configuration>rls</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="dbg|x64">
-      <Configuration>dbg</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="rls|x64">
-      <Configuration>rls</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
+    <ProjectConfiguration Include="dbg|Win32"><Configuration>dbg</Configuration><Platform>Win32</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="rls|Win32"><Configuration>rls</Configuration><Platform>Win32</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="dbg|x64"><Configuration>dbg</Configuration><Platform>x64</Platform></ProjectConfiguration>
+    <ProjectConfiguration Include="rls|x64"><Configuration>rls</Configuration><Platform>x64</Platform></ProjectConfiguration>
   </ItemGroup>
-  <PropertyGroup Label="Globals">
-    <ProjectGuid>{A3060CA4-E554-4A9F-8763-00F9C8FDD9BD}</ProjectGuid>
-  </PropertyGroup>
+  <PropertyGroup Label="Globals"><ProjectGuid>{A3060CA4-E554-4A9F-8763-00F9C8FDD9BD}</ProjectGuid></PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
     <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries Condition="'$(Configuration)'=='dbg'">true</UseDebugLibraries>
     <UseDebugLibraries Condition="'$(Configuration)'=='rls'">false</UseDebugLibraries>
-    <UseDebugLibraries Condition="'$(Configuration)'!='rls'">true</UseDebugLibraries>
+    <WholeProgramOptimization Condition="'$(Configuration)'=='dbg'">false</WholeProgramOptimization>
     <WholeProgramOptimization Condition="'$(Configuration)'=='rls'">true</WholeProgramOptimization>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings" />
-  <ImportGroup Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
+  <ImportGroup Label="PropertySheets"><Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" /></ImportGroup>
   <PropertyGroup>
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(ProjectDir)..\int\$(ProjectName)\$(PlatformTarget)-$(Configuration)\</IntDir>
-    <OutDir>$(ProjectDir)..\lib\$(PlatformTarget)-$(Configuration)\</OutDir>
-    <TargetName>$(ProjectName)</TargetName>
+    <IntDir>$(ProjectDir)/.int/$(PlatformTarget)-$(Configuration)/</IntDir>
+    <OutDir>$(ProjectDir)/../lib/</OutDir>
+    <TargetName>$(ProjectName)($(PlatformTarget)-$(Configuration))</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup>
-    <ClCompile>
-      <SDLCheck>true</SDLCheck>
-      <WarningLevel>Level3</WarningLevel>
-      <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='dbg|Win32'">_ywm_output_lib;_ywm_config_dbg;_ywm_target_x86</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='rls|Win32'">_ywm_output_lib;_ywm_config_rls;_ywm_target_x86</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='dbg|x64'">_ywm_output_lib;_ywm_config_dbg;_ywm_target_x64</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='rls|x64'">_ywm_output_lib;_ywm_config_rls;_ywm_target_x64</PreprocessorDefinitions>
-    </ClCompile>
+    <ClCompile><SDLCheck>true</SDLCheck><WarningLevel>Level3</WarningLevel><ConformanceMode>true</ConformanceMode><LanguageStandard>stdcpplatest</LanguageStandard></ClCompile>
     <Link>
       <SubSystem />
       <EnableCOMDATFolding Condition="'$(Configuration)'=='rls'">true</EnableCOMDATFolding>
       <OptimizeReferences Condition="'$(Configuration)'=='rls'">true</OptimizeReferences>
       <GenerateDebugInformation Condition="'$(Configuration)'=='dbg'">true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(OutDir)\</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)/</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
-  <ItemGroup>
-    <ClCompile Include="cmath.cpp" />
-  </ItemGroup>
+  <ItemGroup><ClCompile Include="ywlib-0.cpp" /></ItemGroup>
 </Project>
